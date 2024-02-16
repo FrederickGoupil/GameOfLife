@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,10 @@ namespace Library
         /// <param name="sizeY">height of the map</param>
         public Map(int sizeX, int sizeY)
         {
+            if (sizeX <= 0){ throw new ArgumentException("Invalid Size for X");}
+            if (sizeY <= 0) { throw new ArgumentException("Invalid Size for Y"); }
+
+
             squares = new Square[sizeX*sizeY];
             this.sizeX = sizeX;
             this.sizeY = sizeY;
@@ -40,21 +45,62 @@ namespace Library
         /// <summary>
         /// Renders the current state of the map on the console
         /// </summary>
-        public void RenderMap()
-        { 
+        public void RenderMap(int nbframe)
+        {
+            string[] frames = new string[nbframe];
+            double[] updateTimes = new double[nbframe];
+
+            Stopwatch sw = Stopwatch.StartNew();
             StringBuilder sb = new StringBuilder();
 
-            for (int y = sizeY -1 ; y >= 0; y--)
+            Console.WriteLine("Rendering...");
+
+            for (int i = 0; i < frames.Length; i++)
             {
-                for (int x = 0;x < sizeX; x++)
+                sw.Restart();
+                for (int y = sizeY - 1; y >= 0; y--)
                 {
-                    sb.Append(GetSquare(x, y).GetContent() + " ");
+                    
+                    for (int x = 0; x < sizeX; x++)
+                    {
+                        sb.Append(GetSquare(x, y).GetContent() + " ");
+                    }
+                    sb.Append('\n');
                 }
-                sb.Append('\n');
+                frames[i] = sb.ToString();
+                updateTimes[i] = sw.ElapsedMilliseconds;
+                
+                int framesLeft = frames.Length - i;
+                double timeLeft = framesLeft * updateTimes[i];
+                Console.Clear();
+                Console.WriteLine("Rendering... ETA : " + timeLeft / 1000 + "s at " + updateTimes[i] + "ms per frame");
+
+                sb.Clear();
+                UpdateMap();
             }
 
-            Console.WriteLine(sb.ToString());
-            sb.Clear();
+            double averageUpdateTime = 0.0;
+
+            for (int i = 0; i < updateTimes.Length; i++)
+            {
+                averageUpdateTime += updateTimes[i];
+            }
+
+            averageUpdateTime /= updateTimes.Length;
+
+            while (true)
+            {
+                Console.ReadLine();
+                for (int i = 0; i < frames.Length; ++i)
+                {
+                    Thread.Sleep(100);
+                    Console.Clear();
+                    Console.WriteLine(frames[i]);
+                }
+                Console.WriteLine(averageUpdateTime + "ms");
+            }
+            
+            
         }
         /// <summary>
         /// Places the desired content in the square in the position given in parameters
@@ -64,6 +110,9 @@ namespace Library
         /// <param name="content">Desired content</param>
         public void PlaceSquare(int posX, int posY, char content)
         {
+            if (posX < 0 || posX >= sizeX) { throw new ArgumentOutOfRangeException("X is out of bounds"); }
+            if (posY < 0 || posY >= sizeY) { throw new ArgumentOutOfRangeException("Y is out of bounds"); }
+
             GetSquare(posX,posY).SetContent(content);
         }
         /// <summary>
@@ -73,6 +122,8 @@ namespace Library
         /// <returns>Number of neighbors</returns>
         public int GetNumberOfNeighbors(Square square)
         {
+            if (square == null) { throw new ArgumentNullException("Square is Null"); }
+
             int count = 0;
 
             //up
@@ -126,6 +177,9 @@ namespace Library
         /// <returns>Square object</returns>
         public Square GetSquare(int x, int y)
         {
+            if (x < 0 || x >= sizeX) { throw new ArgumentOutOfRangeException("X is out of bounds"); }
+            if (y < 0 || y >= sizeY) { throw new ArgumentOutOfRangeException("Y is out of bounds"); }
+
             List<Square> squareList = new List<Square>();
 
             for (int i = 0; i < squares.Length; i++)
@@ -143,7 +197,9 @@ namespace Library
 
             return null;
         }
-
+        /// <summary>
+        /// Makes every square update itself based on its neighbors
+        /// </summary>
         public void UpdateMap()
         {
             for (int i = 0; i < squares.Length; i++)
@@ -168,6 +224,24 @@ namespace Library
             foreach (Square square in squares)
             {
                 square.SetContent(square.GetFutureContent());
+            }
+        }
+        /// <summary>
+        /// Generates a map with random disposition based on density given in parameters
+        /// </summary>
+        /// <param name="density">Density of the map, Higher is less dense</param>
+        public void GenerateMap(int density)
+        {
+            Random random = new Random();
+
+            foreach (Square square in squares)
+            {
+                int num = random.Next(1,density);
+
+                if (num == 1)
+                {
+                    square.SetContent('■');
+                }
             }
         }
     }

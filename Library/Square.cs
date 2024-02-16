@@ -22,6 +22,9 @@ namespace Library
         /// <param name="posY"></param>
         public Square(int posX, int posY)
         {
+            if (posX < 0) { throw new ArgumentException("X position cannot be negative"); }
+            if (posY < 0) { throw new ArgumentException("Y position cannot be negative"); }
+
             this.posX = posX;
             this.posY = posY;
             this.content = ' ';

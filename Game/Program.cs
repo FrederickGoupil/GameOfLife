@@ -1,4 +1,5 @@
 ﻿using Library;
+using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Game
@@ -10,22 +11,12 @@ namespace Game
 
             // Conwey's Game of life
 
-
-
-            Map map = new Map(70,70);
+            Map map = new Map(500,250);
             // init
-            
-            SpawnGliderLoop(map);
-            map.RenderMap();
- 
-            // loop
-            while (true)
-            {
-                Thread.Sleep(50);
-                map.UpdateMap();
-                map.RenderMap();
-            }
-            
+
+            map.GenerateMap(5);
+           
+            map.RenderMap(50);
 
         }
 
