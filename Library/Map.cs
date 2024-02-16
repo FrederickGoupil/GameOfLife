@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -46,11 +45,7 @@ namespace Library
         /// <summary>
         /// Renders the current state of the map on the console
         /// </summary>
-        public async void MTRenderMap(int nbframe)
-        {
-            throw new NotImplementedException("Multi Threading is WIP");
-        }
-        public void STRenderMap(int nbframe)
+        public void RenderMap(int nbframe)
         {
             string[] frames = new string[nbframe];
             double[] updateTimes = new double[nbframe];
@@ -63,40 +58,49 @@ namespace Library
             for (int i = 0; i < frames.Length; i++)
             {
                 sw.Restart();
-
-                for (int y = sizeY / 2; y >= 0; y--)
+                for (int y = sizeY - 1; y >= 0; y--)
                 {
-
+                    
                     for (int x = 0; x < sizeX; x++)
                     {
                         sb.Append(GetSquare(x, y).GetContent() + " ");
                     }
                     sb.Append('\n');
                 }
-
-                double time = sw.ElapsedMilliseconds;
-                double timeLeft = sw.ElapsedMilliseconds * (frames.Length-i);
-
                 frames[i] = sb.ToString();
-                sb.Clear();
+                updateTimes[i] = sw.ElapsedMilliseconds;
+                
+                int framesLeft = frames.Length - i;
+                double timeLeft = framesLeft * updateTimes[i];
                 Console.Clear();
-                Console.WriteLine("Rendering ETA : " + Math.Round((timeLeft/60),2) + "s");
+                Console.WriteLine("Rendering... ETA : " + timeLeft / 1000 + "s at " + updateTimes[i] + "ms per frame");
+
+                sb.Clear();
                 UpdateMap();
             }
 
-            Console.Clear() ;
-            Console.WriteLine("Rendering complete");
+            double averageUpdateTime = 0.0;
+
+            for (int i = 0; i < updateTimes.Length; i++)
+            {
+                averageUpdateTime += updateTimes[i];
+            }
+
+            averageUpdateTime /= updateTimes.Length;
 
             while (true)
             {
                 Console.ReadLine();
                 for (int i = 0; i < frames.Length; ++i)
                 {
+                    Thread.Sleep(100);
                     Console.Clear();
                     Console.WriteLine(frames[i]);
-                    Thread.Sleep(100);
                 }
+                Console.WriteLine(averageUpdateTime + "ms");
             }
+            
+            
         }
         /// <summary>
         /// Places the desired content in the square in the position given in parameters
@@ -240,6 +244,5 @@ namespace Library
                 }
             }
         }
-
     }
 }
