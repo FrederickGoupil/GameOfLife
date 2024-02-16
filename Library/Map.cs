@@ -102,6 +102,57 @@ namespace Library
             
             
         }
+
+        public static string ResultTWSCallback(string resultat)
+        {
+            
+        }
+
+        public void RenderMapMT(int nbframe)
+        {
+            string[] frames = new string[nbframe];
+            double[] updateTimes = new double[nbframe];
+            Stopwatch sw = Stopwatch.StartNew();
+            StringBuilder sb = new StringBuilder();
+
+            // Start Multi threading here
+            for (int i = 0; i < nbframe; i++)
+            {
+                ThreadWithState tws1 = new ThreadWithState(squares, 0, 75, sizeX, new TWSCallback(ResultTWSCallback),i,frames);
+                ThreadWithState tws2 = new ThreadWithState(squares, 75, 125, sizeX, new TWSCallback(ResultTWSCallback),i,frames);
+
+                Thread t1 = new Thread(new ThreadStart(tws1.RenderThread));
+                t1.Start();
+                Thread t2 = new Thread(new ThreadStart(tws2.RenderThread));
+                t2.Start();
+
+                t1.Join();
+                t2.Join();
+            }
+
+            double averageUpdateTime = 0.0;
+
+            for (int i = 0; i < updateTimes.Length; i++)
+            {
+                averageUpdateTime += updateTimes[i];
+            }
+
+            averageUpdateTime /= updateTimes.Length;
+
+            while (true)
+            {
+                Console.ReadLine();
+                for (int i = 0; i < frames.Length; ++i)
+                {
+                    Thread.Sleep(100);
+                    Console.Clear();
+                    Console.WriteLine(frames[i]);
+                }
+                Console.WriteLine(averageUpdateTime + "ms");
+            }
+
+
+        }
         /// <summary>
         /// Places the desired content in the square in the position given in parameters
         /// </summary>

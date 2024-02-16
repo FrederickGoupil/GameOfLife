@@ -11,12 +11,12 @@ namespace Game
 
             // Conwey's Game of life
 
-            Map map = new Map(500,250);
+            Map map = new Map(250,125);
             // init
 
             map.GenerateMap(5);
            
-            map.RenderMap(50);
+            map.RenderMapMT(50);
 
         }
 
