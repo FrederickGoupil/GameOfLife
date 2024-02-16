@@ -13,6 +13,8 @@ namespace Library
         private int end;
         private int lineWidth;
         private TWSCallback callback; 
+        private int currentFrame;
+        private string[] frames;
 
         public ThreadWithState(Square[] squares, int start, int end, int lineWidth, TWSCallback callback, int currentFrame, string[] frames)
         {
@@ -21,6 +23,8 @@ namespace Library
             this.end = end;
             this.lineWidth = lineWidth;
             this.callback = callback;
+            this.currentFrame = currentFrame;
+            this.frames = frames;
         }
 
         public void RenderThread()
