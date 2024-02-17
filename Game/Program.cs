@@ -1,8 +1,10 @@
 ﻿using Library;
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Game
 {
@@ -11,12 +13,13 @@ namespace Game
         static void Main(string[] args)
         {
 
+            
             // Conwey's Game of life
 
             // config
             
-            int sizeX = 500;       // Width
-            int sizeY = 250;       // Height
+            int sizeX = 1000;       // Width
+            int sizeY = 1000;       // Height
             int nbFrames = 200;     // Number of frames to generate
             int density = 99;       // Chance for cells to be alive on generation
             int nbThreads = 8;      // 
@@ -52,40 +55,34 @@ namespace Game
             // Print Results
        
 
-            int frame = 0;
-
-            Console.WriteLine("Time to render : " + (Math.Round((sw.ElapsedMilliseconds/1000.0),3)) + "s");
-            Console.ReadKey();
-            while (true)
+            Console.WriteLine("Time to render : " + (Math.Round((sw.ElapsedMilliseconds/1000.0),3)) + "s       ");
+            for (int frame = 0; frame < nbFrames; frame++)
             {
-                Console.Clear();
-                Console.WriteLine(frames[frame]);
-
-                ConsoleKeyInfo key = Console.ReadKey();
-
-                if (key.Key == ConsoleKey.LeftArrow)
+                bool[] booleanArray = new bool[(sizeX*sizeY)+1];
+                
+                int i = 0;
+                for (int y = sizeY-1; y >= 0; y--)
                 {
-                    if (frame  == 0)
+                    for (int x = 0; x < sizeX; x++)
                     {
-                        frame = nbFrames-1;
-                    }
-                    else
-                    {
-                        frame--;
+                        if ((frames[frame])[(y*sizeX)+x] == '■')
+                        {
+                            booleanArray[i] = true;
+                        }
+                        i++;
+                        
                     }
                 }
-                else if (key.Key == ConsoleKey.RightArrow)
-                {
-                    if (frame  == nbFrames-1)
-                    {
-                        frame = 0;
-                    } 
-                    else
-                    {
-                        frame++;
-                    }
-                }
+
+
+                // Create black and white image from boolean array
+                Bitmap image = RenderImage(booleanArray, sizeX,sizeY);
+        
+                // Save the image
+                image.Save("output"+ frame + ".png", System.Drawing.Imaging.ImageFormat.Png);
+
             }
+            return;
         }
         /// <summary>
         /// Renders the given part of every frames and returns the result
@@ -112,9 +109,9 @@ namespace Game
                 {
                     for (int x = 0; x < sizeX; x++)
                     {
-                        if (states[i].GetCells()[(y*sizeX)+x].IsAlive()) { framePart += "■ ";} else { framePart += "  ";}
+                        if (states[i].GetCells()[(y*sizeX)+x].IsAlive()) { framePart += "■";} else { framePart += " ";}
                     }
-                    framePart += "\n";
+                    
                 }
                 if (timed)
                 {
@@ -260,5 +257,29 @@ namespace Game
             return frames;
         }
         
+        static Bitmap RenderImage(bool[] bools,int width, int height)
+        {
+            Color blackColor = Color.Black;
+            Color whiteColor = Color.White;
+
+            Bitmap bitmap = new Bitmap(width, height);
+
+            for (int y = height-1; y >= 0; y--)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    Color color = bools[(y*width)+x] ? whiteColor : blackColor;
+
+                    using (Graphics g = Graphics.FromImage(bitmap))
+                    {
+                        using (Pen b = new Pen(color))
+                        {
+                            g.DrawRectangle(b,x+1,y+1,1,1);
+                        }
+                    }
+                }
+            }
+            return bitmap;
+        }
     }
 }
