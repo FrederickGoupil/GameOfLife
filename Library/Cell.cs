@@ -25,6 +25,18 @@ namespace Library
         {
             this.isAlive = true;
         }
+        public void GiveLifeNext()
+        {
+            this.isAliveNext = true;
+        }
+        public void Kill()
+        {
+            this.isAlive = false;
+        }
+        public void KillNext()
+        {
+            this.isAliveNext = false;
+        }
 
         public int[] GetPosition()
         {
@@ -34,6 +46,10 @@ namespace Library
         public bool IsAlive()
         {
             return isAlive;
+        }
+        public bool IsAliveNext()
+        {
+            return isAliveNext;
         }
     }
 }
