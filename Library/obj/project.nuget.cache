@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "yQaFdOQp2TgUkUxfTM19vA2DmtBvGSD4U9vCsmqa3qTfEez9vG44u0noRSKVymQ0S0b9fs3YYFJpw43/s0f59w==",
+  "dgSpecHash": "vKDYS+kVycmUFLhGt7zu0TZPUdG6UvwY5Nd59gOA0moxAWM2qADCFUUSg2tBhhgJZ9kK39i+3EEil5zF/CWx3w==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Krow\\Documents\\GitHub\\GameofLife\\Library\\Library.csproj",
+  "projectFilePath": "C:\\Users\\krow\\Documents\\GitHub\\GameOfLife\\Library\\Library.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

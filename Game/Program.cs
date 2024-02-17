@@ -1,4 +1,5 @@
 ﻿using Library;
+using System;
 using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 
@@ -11,15 +12,55 @@ namespace Game
 
             // Conwey's Game of life
 
-            Map map = new Map(250,125);
-            // init
+            // config
 
-            map.GenerateMap(5);
-           
-            map.RenderMapMT(50);
+            int sizeX = 500;        // Width
+            int sizeY = 250;        // Height
+            int nbFrames = 10;      // Number of frames to generate
+            int density = 95;       // Chance for cells to be alive on generation
+
+            // Generate
+
+            Console.SetWindowSize((sizeX*2)+1, sizeY+1);
+            List<ArrayState> states = new List<ArrayState>(nbFrames);
+            states.Add(new ArrayState(sizeX, sizeY));
+            try
+            {
+                states[0].GenerateRandomState(density);
+            }
+            catch (Exception ex)
+            {
+                Console.Clear();
+                Console.WriteLine(ex.Message + "\nPress any key to exit...");
+                Console.ReadKey();
+                return;
+            }
+
+            // Render Frames
+
+            for (int i = 1; i < nbFrames; i++)
+            {
+                states.Add(new ArrayState(sizeX,sizeY));
+                states[i]
+            }
+
+            // Print Results
+
+
+            
+            
 
         }
+        
+        static string RenderFramePart(ArrayState state, int start, int end)
+        {
+            string response = "";
 
+            for (int y = start)
+
+            return response;
+        }
+        /*
         public static void SpawnGlider(Map map)
         {
             map.PlaceSquare(3,35,'■');
@@ -413,5 +454,6 @@ namespace Game
             map.PlaceSquare(39,70-66,'■');
             map.PlaceSquare(39,70-65,'■');
         }
+        */
     }
 }
