@@ -23,6 +23,10 @@ namespace Library
         /// <param name="sizeY">Height</param>
         public ArrayState(int sizeX, int sizeY, int frameNumber)
         {
+            if (sizeX <= 0) { throw new ArgumentOutOfRangeException("Size X cannot be 0 or negative"); }
+            if (sizeY <= 0) { throw new ArgumentOutOfRangeException("Size Y cannot be 0 or negative"); }
+            if (frameNumber <= 0) { throw new ArgumentOutOfRangeException("Number of frames cannot be 0 or negative"); }
+
             this.frameNumber = frameNumber;
             this.sizeX = sizeX;
             this.sizeY = sizeY;
@@ -37,8 +41,6 @@ namespace Library
                     i++;
                 }
             }
-            
-
             this.cells = cells;
 
             this.Xpositions = new int[sizeX+1];
@@ -97,14 +99,13 @@ namespace Library
         public void UpdateStateFromPrevious(ArrayState previousState)
         {
             Cell[] previousCells = previousState.GetCells();
-            
-            
-            // Set Future State
 
+            // Set Future State
             for (int y = sizeY - 1; y >= 0; y--)
             {
                 for (int x =0; x < sizeX; x++)
                 {
+
                     int neighbors = GetCellNeighbors(previousCells,x,y);
 
                     // Rules
@@ -131,13 +132,6 @@ namespace Library
                     }
                 }
             }
-
-            // Apply State
-            /*
-            for (int i = 0; i < cells.Count; i++)
-            {
-                if (cells[i].IsAliveNext()) { cells[i].GiveLife(); } else { cells[i].Kill(); }
-            }*/
         }
         /// <summary>
         /// Check in every 8 direction and returns the number of neighbor found
@@ -148,48 +142,28 @@ namespace Library
         /// <returns>Number of neighbors found</returns>
         public int GetCellNeighbors(Cell[] herecells, int x, int y)
         {
-            int neighbor = 0;
+            if(x<0 || x>=sizeX) { throw new ArgumentOutOfRangeException("X cannot be outside of the array");}
+            if(y<0 || y>=sizeY) { throw new ArgumentOutOfRangeException("Y cannot be outside of the array");}
+            if(herecells.Length==0 || herecells==null) { throw new ArgumentException("The array of cell is invalid");}
 
+            int neighbor = 0;
             // up
-            if (y < sizeY-1 && herecells[((y+1) * sizeX) + x].IsAlive())
-            {
-                neighbor++;
-            }
+            if (y < sizeY-1 && herecells[((y+1) * sizeX) + x].IsAlive()){neighbor++;}
             // down
-            if (y > 0 && herecells[((y-1) * sizeX) + x].IsAlive())
-            {
-                neighbor++;
-            }
+            if (y > 0 && herecells[((y-1) * sizeX) + x].IsAlive()){neighbor++;}
             // left
-            if (x > 0 && herecells[(y*sizeX) + (x - 1)].IsAlive())
-            {
-                neighbor++;
-            }
+            if (x > 0 && herecells[(y*sizeX) + (x - 1)].IsAlive()){neighbor++;}
             // right
-            if (x < sizeX-1 && herecells[(y*sizeX) + (x + 1)].IsAlive())
-            {
-                neighbor++;
-            }
+            if (x < sizeX-1 && herecells[(y*sizeX) + (x + 1)].IsAlive()){neighbor++;}
             // up left
-            if (y < sizeY-1 && x > 0 && herecells[((y+1) * sizeX) + (x-1)].IsAlive())
-            {
-                neighbor++;
-            }
+            if (y < sizeY-1 && x > 0 && herecells[((y+1) * sizeX) + (x-1)].IsAlive()){neighbor++;}
             // up right
-            if (y < sizeY-1 && x < sizeX-1 && herecells[((y+1) * sizeX) + (x+1)].IsAlive())
-            {
-                neighbor++;
-            }
+            if (y < sizeY-1 && x < sizeX-1 && herecells[((y+1) * sizeX) + (x+1)].IsAlive()){neighbor++;}
             // down left
-            if (y > 0 && x > 0 && herecells[((y-1) * sizeX) + (x-1)].IsAlive())
-            {
-                neighbor++;
-            }
+            if (y > 0 && x > 0 && herecells[((y-1) * sizeX) + (x-1)].IsAlive()){neighbor++;}
             // down right
-            if (y > 0 && x < sizeX-1 && herecells[((y-1) * sizeX) + (x+1)].IsAlive())
-            {
-                neighbor++;
-            }
+            if (y > 0 && x < sizeX-1 && herecells[((y-1) * sizeX) + (x+1)].IsAlive()){neighbor++;}
+
             return neighbor;
         }
     }

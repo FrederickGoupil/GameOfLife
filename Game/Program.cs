@@ -14,35 +14,15 @@ namespace Game
             // Conwey's Game of life
 
             // config
-
-            int sizeX = 300;        // Width
-            int sizeY = 125;        // Height
-            int nbFrames = 200;      // Number of frames to generate
-            int density = 90;       // Chance for cells to be alive on generation
-
-            /*
-            Single Thread : 74.860s
-
-            2 Threads     : 3.935s
-		            3.819s
-		            3.803s
-		            3.850s
-		
-
-            4 threads     : 5.823s
-		            5.784s
-		            5.946s
-		            5.745s
-
-            8 threads     : 4.498s
-		            4.343s
-		            4.338s
-		            4.341s
-		
-            */
+            
+            int sizeX = 500;       // Width
+            int sizeY = 250;       // Height
+            int nbFrames = 200;     // Number of frames to generate
+            int density = 99;       // Chance for cells to be alive on generation
+            int nbThreads = 8;      // 
 
             // Generate
-
+            
             Console.Clear();
 
             Console.SetWindowSize((sizeX*2)+1, sizeY+1);
@@ -51,36 +31,27 @@ namespace Game
             Stopwatch sw = Stopwatch.StartNew();
             sw.Start();
 
-            states.Add(new ArrayState(sizeX, sizeY,0));
-            try
-            {
-                states[0].GenerateRandomState(density);
-            }
-            catch (Exception ex)
-            {
-                Console.Clear();
-                Console.WriteLine(ex.Message + "\nPress any key to exit...");
-                Console.ReadKey();
-                return;
-            }
-
+            states.Add(new ArrayState(sizeX, sizeY,nbFrames));
+         
+            states[0].GenerateRandomState(density);
+           
             for (int i  = 1; i < states.Capacity; i++)
             {
                 states.Add(new ArrayState(sizeX,sizeY,i));
                 states[i].UpdateStateFromPrevious(states[i-1]);
             }
 
-           
             // create strings
 
-            Task<string[]> task = Task.Run(() => RenderFrames(states,sizeX,sizeY,2));
+            Task<string[]> task = Task.Run(() => RenderFrames(states,sizeX,sizeY,nbThreads));
 
             task.Wait();
 
             string[] frames = task.Result;
 
             // Print Results
-        
+       
+
             int frame = 0;
 
             Console.WriteLine("Time to render : " + (Math.Round((sw.ElapsedMilliseconds/1000.0),3)) + "s");
@@ -116,45 +87,71 @@ namespace Game
                 }
             }
         }
-        
-        static async Task<string[]> RenderFramePart(List<ArrayState> states, int start, int end, int sizeX, int sizeY)
+        /// <summary>
+        /// Renders the given part of every frames and returns the result
+        /// </summary>
+        /// <param name="states">Generated Frames</param>
+        /// <param name="start">Top of the part int Y</param>
+        /// <param name="end">Bottom of the part in Y</param>
+        /// <param name="sizeX">Width of the frame</param>
+        /// <param name="sizeY">Height of the frame</param>
+        /// <param name="timed">If the thread will print its expected render time</param>
+        /// <returns>List of all the given part of the frames</returns>
+        static async Task<string[]> RenderFramePart(List<ArrayState> states, int start, int end, int sizeX, int sizeY, bool timed)
         {
-            Console.WriteLine("Thread Started Rendering");
-
+            Console.WriteLine("Thread " + Thread.CurrentThread.ManagedThreadId + " Started Rendering");
+            Stopwatch sw = Stopwatch.StartNew();
+            
             string[] response = new string[states.Count];
 
             for (int i = 0; i < states.Count ; i++)
             {
+                sw.Restart();
                 string framePart = "";
                 for (int y = start; y >= end; y--)
                 {
                     for (int x = 0; x < sizeX; x++)
                     {
                         if (states[i].GetCells()[(y*sizeX)+x].IsAlive()) { framePart += "■ ";} else { framePart += "  ";}
-                        
                     }
                     framePart += "\n";
+                }
+                if (timed)
+                {
+                    Console.SetCursorPosition(0,9);
+                    Console.WriteLine("Rendering... ETA : " + Math.Round(((sw.ElapsedMilliseconds/1000.0)*(states.Count-i)),3) + "s      ");
+
                 }
                 response[i] = framePart;
             }
             return response;
         }
+
+        /// <summary>
+        /// Main Rendering thread used to seperate the load
+        /// </summary>
+        /// <param name="states">Generated frames to render</param>
+        /// <param name="sizeX">X size of the frames</param>
+        /// <param name="sizeY">Y size of the frames</param>
+        /// <param name="nbThread">Number of threads to work on rendering</param>
+        /// <returns>Returns the resulting frames</returns>
         static async Task<string[]> RenderFrames(List<ArrayState> states, int sizeX, int sizeY, int nbThread)
         {
-            
             Console.WriteLine("Threads are Initialized");
             string[] frames = new string[states.Count];
-            
             if (nbThread == 8)
             {
-                Task<string[]> t1 = Task.Run(() => RenderFramePart(states,sizeY-1,(sizeY/8)*7,sizeX,sizeY));
-                Task<string[]> t2 = Task.Run(() => RenderFramePart(states,(sizeY/8)*7-1,(sizeY/8)*6,sizeX,sizeY));
-                Task<string[]> t3 = Task.Run(() => RenderFramePart(states,(sizeY/8)*6-1,(sizeY/8)*5,sizeX,sizeY));
-                Task<string[]> t4 = Task.Run(() => RenderFramePart(states,(sizeY/8)*5-1,(sizeY/8)*4,sizeX,sizeY));
-                Task<string[]> t5 = Task.Run(() => RenderFramePart(states,(sizeY/8)*4-1,(sizeY/8)*3,sizeX,sizeY));
-                Task<string[]> t6 = Task.Run(() => RenderFramePart(states,(sizeY/8)*3-1,(sizeY/8)*2,sizeX,sizeY));
-                Task<string[]> t7 = Task.Run(() => RenderFramePart(states,(sizeY/8)*2-1,(sizeY/8),sizeX,sizeY));
-                Task<string[]> t8 = Task.Run(() => RenderFramePart(states,(sizeY/8)-1,0,sizeX,sizeY));
+                Task<string[]> t1 = Task.Run(() => RenderFramePart(states,sizeY-1,(sizeY/8)*7,sizeX,sizeY,true));
+                Task<string[]> t2 = Task.Run(() => RenderFramePart(states,(sizeY/8)*7-1,(sizeY/8)*6,sizeX,sizeY,false));
+                Task<string[]> t3 = Task.Run(() => RenderFramePart(states,(sizeY/8)*6-1,(sizeY/8)*5,sizeX,sizeY, false));
+                Task<string[]> t4 = Task.Run(() => RenderFramePart(states,(sizeY/8)*5-1,(sizeY/8)*4,sizeX,sizeY, false));
+                Task<string[]> t5 = Task.Run(() => RenderFramePart(states,(sizeY/8)*4-1,(sizeY/8)*3,sizeX,sizeY , false));
+                Task<string[]> t6 = Task.Run(() => RenderFramePart(states,(sizeY/8)*3-1,(sizeY/8)*2,sizeX,sizeY, false));
+                Task<string[]> t7 = Task.Run(() => RenderFramePart(states,(sizeY/8)*2-1,(sizeY/8),sizeX,sizeY,false));
+                Task<string[]> t8 = Task.Run(() => RenderFramePart(states,(sizeY/8)-1,0,sizeX,sizeY,false));
+                
+
+                
 
                 string[] string1 = new string[states.Count];
                 string[] string2 = new string[states.Count];
@@ -173,7 +170,8 @@ namespace Game
                 t6.Wait();
                 t7.Wait();
                 t8.Wait();
-            
+                
+
                 for (int s = 0; s < states.Count; s++)
                 {
                     string1[s] = t1.Result[s];
@@ -194,10 +192,10 @@ namespace Game
             }
             else if (nbThread == 4)
             {
-                Task<string[]> t1 = Task.Run(() => RenderFramePart(states,sizeY-1,(sizeY/4)*3,sizeX,sizeY));
-                Task<string[]> t2 = Task.Run(() => RenderFramePart(states,(sizeY/4)*3-1,(sizeY/4)*2,sizeX,sizeY));
-                Task<string[]> t3 = Task.Run(() => RenderFramePart(states,(sizeY/4)*2-1,(sizeY/4),sizeX,sizeY));
-                Task<string[]> t4 = Task.Run(() => RenderFramePart(states,(sizeY/4)-1,0,sizeX,sizeY));
+                Task<string[]> t1 = Task.Run(() => RenderFramePart(states,sizeY-1,(sizeY/4)*3,sizeX,sizeY,true));
+                Task<string[]> t2 = Task.Run(() => RenderFramePart(states,(sizeY/4)*3-1,(sizeY/4)*2,sizeX,sizeY, false));
+                Task<string[]> t3 = Task.Run(() => RenderFramePart(states,(sizeY/4)*2-1,(sizeY/4),sizeX,sizeY, false));
+                Task<string[]> t4 = Task.Run(() => RenderFramePart(states,(sizeY/4)-1,0,sizeX,sizeY, false));
 
                 string[] string1 = new string[states.Count];
                 string[] string2 = new string[states.Count];
@@ -222,10 +220,10 @@ namespace Game
                     frames[i] = string1[i] + string2[i] + string3[i] + string4[i];
                 }
             }
-            else if (nbThread == 2)
+            else if (nbThread == 2) 
             {
-                Task<string[]> t1 = Task.Run(() => RenderFramePart(states,sizeY-1,(sizeY/4)*3,sizeX,sizeY));
-                Task<string[]> t2 = Task.Run(() => RenderFramePart(states,(sizeY/4)*3-1,(sizeY/4)*2,sizeX,sizeY));
+                Task<string[]> t1 = Task.Run(() => RenderFramePart(states,sizeY-1,(sizeY/2),sizeX,sizeY, true));
+                Task<string[]> t2 = Task.Run(() => RenderFramePart(states,(sizeY/2)-1,0,sizeX,sizeY, false));
 
                 string[] string1 = new string[states.Count];
                 string[] string2 = new string[states.Count];
@@ -246,7 +244,7 @@ namespace Game
             }
             else if (nbThread == 1)
             {
-                Task<string[]> task = Task.Run(() => RenderFramePart(states,sizeY-1,0,sizeX,sizeY));
+                Task<string[]> task = Task.Run(() => RenderFramePart(states,sizeY-1,0,sizeX,sizeY,true));
 
                 task.Wait();
 
@@ -259,8 +257,6 @@ namespace Game
                 }
             }
             Console.WriteLine("Threads are done");
-            
-            
             return frames;
         }
         
