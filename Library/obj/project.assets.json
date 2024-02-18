@@ -8,19 +8,19 @@
     "net8.0": []
   },
   "packageFolders": {
-    "C:\\Users\\krow\\.nuget\\packages\\": {}
+    "C:\\Users\\Krow\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\krow\\Documents\\GitHub\\GameOfLife\\Library\\Library.csproj",
+      "projectUniqueName": "C:\\Users\\Krow\\Documents\\GitHub\\GameOfLife\\Library\\Library.csproj",
       "projectName": "Library",
-      "projectPath": "C:\\Users\\krow\\Documents\\GitHub\\GameOfLife\\Library\\Library.csproj",
-      "packagesPath": "C:\\Users\\krow\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\krow\\Documents\\GitHub\\GameOfLife\\Library\\obj\\",
+      "projectPath": "C:\\Users\\Krow\\Documents\\GitHub\\GameOfLife\\Library\\Library.csproj",
+      "packagesPath": "C:\\Users\\Krow\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Krow\\Documents\\GitHub\\GameOfLife\\Library\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\krow\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Krow\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
