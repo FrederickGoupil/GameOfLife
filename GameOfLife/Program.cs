@@ -1,4 +1,5 @@
 ﻿using ImageMagick;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -10,9 +11,10 @@ namespace GameOfLife
     {
         static void Main(string[] args)
         {
-            int nbFrames = 1000;
-            int height = 1000;
-            int width = 1000;
+
+            int nbFrames = 500;
+            int height = 3000;
+            int width = 2000;
             int density = 97;
 
             Run(nbFrames, height, width, density);
@@ -20,7 +22,7 @@ namespace GameOfLife
 
         static async void Run(int nbFrames,int height,int width, int density)
         {
-            bool[,,] frames = new bool[nbFrames, height, width];
+            bool[,,] frames = new bool[nbFrames, width, height];
             Stopwatch sw = new Stopwatch();
 
             // Generate first frame
