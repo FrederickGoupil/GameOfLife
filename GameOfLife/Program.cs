@@ -12,8 +12,8 @@ namespace GameOfLife
         static void Main(string[] args)
         {
 
-            int nbFrames = 500;
-            int height = 3000;
+            int nbFrames = 50;
+            int height = 1500;
             int width = 2000;
             int density = 97;
 
@@ -120,7 +120,7 @@ namespace GameOfLife
 
             for (int frame = start;  frame < end; frame++)
             {
-                Bitmap image = new Bitmap(width*10, height*10);
+                Bitmap image = new Bitmap(width, height);
                 sw.Restart();
                 for (int x = 0; x < width; x++)
                 {
@@ -132,7 +132,7 @@ namespace GameOfLife
 
                             using (Brush b = new SolidBrush(color))
                             {
-                                g.FillRectangle(b,x*10,y*10,10,10);
+                                g.FillRectangle(b,x,y,1,1);
                             }
                         }
                     }
